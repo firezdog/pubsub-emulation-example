@@ -1,0 +1,8 @@
+FROM python:latest
+
+WORKDIR /home/app
+
+COPY . .
+RUN bash provision-python-gcp.sh
+
+CMD ["tail", "-f", "/dev/null"]

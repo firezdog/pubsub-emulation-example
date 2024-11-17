@@ -1,0 +1,60 @@
+version: '3.9'
+
+x-defaults:
+  &defaults
+  env_file:
+    - .env
+    - .secret.env
+  volumes:
+    - sample-pusbsub-emulation:/home/app
+
+
+volumes:
+  sample-pusbsub-emulation:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}
+      o: bind
+
+services:
+  pubsub-emulator:
+    image: google/cloud-sdk:latest
+    container_name: pubsub-emulator-container
+    command: gcloud beta emulators pubsub start --host-port="${PUBSUB_EMULATOR_HOST}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${PUBSUB_EMULATOR_HOST}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    <<: *defaults
+
+  pubsub-users:
+    build:
+      context: .
+      dockerfile: Dockerfile.python-gcp
+    container_name: pubsub-users-container
+    command: "bash run-python-gcp.sh"
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+      pubsub-db:
+        condition: service_healthy
+    <<: *defaults
+
+  pubsub-db:
+    image: google/alloydbomni:latest
+    container_name: pubsub-db-container
+    command: 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -h ${DB_HOST} -p ${DB_PORT} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./db-data:/var/lib/postgresql/data
+    ports:
+      # by exposing the ports we allow debugging via external tools
+      - ${DB_PORT}:${DB_PORT}
+    <<: *defaults
