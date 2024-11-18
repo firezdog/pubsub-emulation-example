@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile.python-gcp
     container_name: pubsub-users-container
-    command: "bash run-python-gcp.sh"
+    entrypoint: "bash run-python-gcp.sh"
     depends_on:
       pubsub-emulator:
         condition: service_healthy

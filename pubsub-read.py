@@ -1,3 +1,9 @@
+'''
+Reads from the pubsub using the gcp subscriber client and writes what it reads to db
+-- alternative is to use the streaming reader defined in pubsub-read-beam.py
+'''
+
+
 import logging
 
 import config

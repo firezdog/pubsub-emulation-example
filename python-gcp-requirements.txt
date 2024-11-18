@@ -1,2 +1,4 @@
 google-cloud-pubsub
 psycopg2
+apache-beam
+apache-beam[gcp]
