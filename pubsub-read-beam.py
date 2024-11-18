@@ -9,7 +9,7 @@ import config
 import logging
 
 logging.basicConfig(level=logging.INFO)
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('[pubsub-read-beam]')
 
 
 class WriteToPostgres(beam.DoFn):
@@ -42,6 +42,7 @@ class WriteToPostgres(beam.DoFn):
             cursor.execute(query, [element])
             self.connection.commit()
             cursor.close()
+            LOGGER.info('message uploaded to db')
         except Exception as e:
             self.connection.rollback()
             LOGGER.error(f"Error writing to database: {e}")

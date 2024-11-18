@@ -7,7 +7,7 @@ from config import PROJECT_ID, TOPIC
 from google.cloud import pubsub_v1
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('[pubsub-publish]')
 logging.basicConfig(level=logging.INFO)
 
 
